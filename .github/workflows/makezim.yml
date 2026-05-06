@@ -1,12 +1,10 @@
-# makezim
-
 name: Make ZIM File
 
 on:
   workflow_dispatch:
     inputs:
       url:
-        description: 'Website URL to convert to ZIM'
+        description: 'Website URL to convert to ZIM (e.g., https://example.com)'
         required: true
         type: string
       name:
@@ -34,22 +32,22 @@ jobs:
       id: vars
       run: |
         if [ -z "${{ inputs.name }}" ]; then
-          ZIM_NAME=$(echo "${{ inputs.url }}" | awk -F/ '{print $3}')
+          ZIM_NAME=$(echo "${{ inputs.url }}" | sed -E 's|https?://||' | sed -E 's|/.*||' | sed -E 's|www\.||')
         else
           ZIM_NAME="${{ inputs.name }}"
         fi
         echo "zim_name=${ZIM_NAME}" >> $GITHUB_OUTPUT
+        echo "Using ZIM name: ${ZIM_NAME}"
     
     - name: Run Zimit to create ZIM file
       run: |
         docker run --rm \
           -v ${{ github.workspace }}:/output \
-          --shm-size=1gb \
           ghcr.io/openzim/zimit \
-          zimit --url ${{ inputs.url }} \
-                --name ${{ steps.vars.outputs.zim_name }} \
-                --workers ${{ inputs.workers }} \
-                --waitUntil domcontentloaded
+          zimit "${{ inputs.url }}" \
+            --name "${{ steps.vars.outputs.zim_name }}" \
+            --workers ${{ inputs.workers }} \
+            --waitUntil domcontentloaded
     
     - name: Commit and push ZIM file
       run: |
