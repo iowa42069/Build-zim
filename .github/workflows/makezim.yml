@@ -25,14 +25,19 @@ jobs:
         id: zimit_run
         run: |
           echo "::group::Zimit Docker Run Output"
+
+          # Generate timestamp (HHMMSS)
+          TIMESTAMP=$(date +"%H%M%S")
+
           docker run --rm \
             -v ${{ github.workspace }}/output:/output \
             ghcr.io/openzim/zimit \
             zimit \
               --seeds ${{ github.event.inputs.website_url }} \
-              --name zimit_generated \
+              --name zimit_generated_$TIMESTAMP \
               --output /output \
               --pageLimit 1000
+
           echo "::endgroup::"
 
       - name: Find the generated ZIM file
