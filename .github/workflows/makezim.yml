@@ -34,7 +34,6 @@ jobs:
             ghcr.io/openzim/zimit \
             zimit \
               --seeds ${{ github.event.inputs.website_url }} \
-              --depth 2 \
               --name zimit_generated_$TIMESTAMP \
               --output /output \
               --pageLimit 1000
